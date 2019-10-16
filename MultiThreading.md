@@ -31,26 +31,31 @@
       lock.unlock(); //release lock in either situation for other threads
     }
   ```
+  - only one thread acquires at a time.
   - fair lock (slow)
-      th1 -> lock
+      ```th1 -> lock
       th2,th3,th4 ->wait (queue -FIFO)
       th1->release
       th2->lock
       th3,th4
+     ```
     ```java
     ReentrantLock lock= new ReentrantLock(true); //will acquire fair lock
     ```
     Note: tryLock() method will make the attempt of other thread wait longer and acquire the lock even if it is a fair lock
     
    - unfair lock(faster)
-      th1 -> lock
+      ```th1 -> lock
       th2,th3,th4 -> wait (queue -FIFO)
       th1-> release lock <-th5 (same time)
       th5->lock
       th2,th3,th4 -> wait
+    ```
     ```java
     ReentrantLock lock= new ReentrantLock(false); //will acquire unfair lock
     ```
+ **ReadWriteLock:**
+ 
     
 **DeadLocks in MultiThreading**
 ________________________________________________________________________________________________________________________________________Deadlock occurs when a thread waiting for a lock held by another thread and vice versa.
