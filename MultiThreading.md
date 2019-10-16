@@ -52,14 +52,13 @@
     Note: tryLock() method will make the attempt of other thread wait longer and acquire the lock even if it is a fair lock
     
    - unfair lock(faster)
-    ```
+    ```sequence
       th1 -> lock
       th2,th3,th4 -> wait (queue -FIFO)
       th1-> release lock <-th5 (same time)
       th5->lock
       th2,th3,th4 -> wait
-    ```
-    
+    ``` 
     ```java
     ReentrantLock lock= new ReentrantLock(false); //will acquire unfair lock
     ```
@@ -77,23 +76,27 @@
   - threads in waiting queue are processed like fairLock.
       1. all thread(read) will gain lock and write is waiting. (this makes ReentrantReadWriteLock efficient)
       2. if another read thread comes in queue, it has to wait for write thread to finish. 
-      
-  **BlockingQueue**
+  
+  **BlockingQueue:**
     - thread-safe
         1. producer threads th3-> th1,th2,....<--consumer threads 
         2. .......<----- consumer thread (consumer thread goes to **block** state as the queue is empty)
         3. producer thread th5----> th1,th2,th3,th4 (producer thread goes into **block** state as queue is full)
-  **SynchronousQueue**
+        
+  **SynchronousQueue:**
      - similar to BlockingQueue, not storing element hence no peek().
         1. producer threads th3->[] <--consumer threads (put of producer thread is **block** till consumer thread is ready to get -*direct-handoff*)
-   **Exchanger**  
+        
+   **Exchanger:**  
      - Datastructure that allows two threads to exchange items.
      - works similar to BlockingQueue and SynchronousQueue
      - Usecase: Buffer 
      producer thread has full buffer exchanges with consumer thread which has empty buffer
      
 **DeadLocks in MultiThreading**
-________________________________________________________________________________________________________________________________________Deadlock occurs when a thread waiting for a lock held by another thread and vice versa.
+_____________________________________________________________________________________________________________________________________
+
+Deadlock occurs when a thread waiting for a lock held by another thread and vice versa.
  ```
     Thread1-> LockA->LockB(waiting for Thread2 to release)
     Thread2-> LockB -> LockA(waiting for Thread1 to release)
