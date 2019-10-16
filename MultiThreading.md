@@ -15,27 +15,65 @@
 2. Method level lock - using *synchronized* keyword.
 3. Concurrent datastructures - BlockingQueue, Semaphore
 
+**Reentrant Lock:**
+  - allows threads to try gaining lock repeatedly. call lock method by same method on same object mutiple times.
+    getHeldCount() will help to get the times a mtd has tried to access the lock.
+  - advisable to surround the aquire lock and release with try..catch block in case of failure handling
+  ```java
+  private ReentrantLock lock = new ReentrantLock();
+  private static acquireResource(){
+    lock.lock();
+    try{
+    //access the resource
+    }catch(){
+    //handle exception
+    }finally(){
+      lock.unlock(); //release lock in either situation for other threads
+    }
+  ```
+  - fair lock (slow)
+      th1 -> lock
+      th2,th3,th4 ->wait (queue -FIFO)
+      th1->release
+      th2->lock
+      th3,th4
+    ```java
+    ReentrantLock lock= new ReentrantLock(true); //will acquire fair lock
+    ```
+    Note: tryLock() method will make the attempt of other thread wait longer and acquire the lock even if it is a fair lock
+    
+   - unfair lock(faster)
+      th1 -> lock
+      th2,th3,th4 -> wait (queue -FIFO)
+      th1-> release lock <-th5 (same time)
+      th5->lock
+      th2,th3,th4 -> wait
+    ```java
+    ReentrantLock lock= new ReentrantLock(false); //will acquire unfair lock
+    ```
+    
 **DeadLocks in MultiThreading**
-_________________________________________________________________________________________________________________________________________
-
-When two threads are executed 
-
-
-Tool to detect deadlock
-
-1. Use tools like Threaddump to detect deadlock. JVM will detect and either outputs the threaddump for a processID to a out file ($jstack processid>./out.txt) or on console ($kill -3 <processid>)
+________________________________________________________________________________________________________________________________________Deadlock occurs when a thread waiting for a lock held by another thread and vice versa.
+ ```
+    Thread1-> LockA->LockB(waiting for Thread2 to release)
+    Thread2-> LockB -> LockA(waiting for Thread1 to release)
+ ```
+ Detecting deadlock becomes difficult with multiple lock types and source of thread
+ 
+Detect deadlock
+1. At runtime, use tools like Threaddump to detect deadlock. JVM will detect and either outputs the threaddump for a processID to a out file ($jstack processid>./out.txt) or on console ($kill -3 <processid>)
 2. Java API to detect deadlock. *findDeadLockedThread*
 ```java
    ThreadMXBean threadBean = ManagementFactory.getThreadMXBean();
    long[] threadIds = threadBean.findDeadLockedThread();
 ```
 
-Ways to avoid deadlock:
- - Include timeouts for locks.
+**Ways to avoid deadlock:**
+ - *Include timeouts for locks.*
  ```java
     private void execute() throws InterruptedException{
       Lock lock = new ReentrantLock();
-      boolean acquired = lock.tryLock(2,TimeUnit.SECONDS);
+      boolean acquired = lock.tryLock(2,TimeUnit.SECONDS);//this attempt of acquiring will wait for 2 sec and then proceed something else if false.
       
       BlockingQueue queue = new ArrayBlockingQueue(16);
       queue.poll(2, TimeUnit.SECONDS);
@@ -44,23 +82,29 @@ Ways to avoid deadlock:
       sem.tryAcquire(2, Time.SECONDS);
     }
  ```
-  - Ordering of locks
+  - *Ordering of locks*
     If Thread1 acquires lock A and tries to lock B
     Thread2 too tries to acquire lock A and then lockB.
     
     *Global ordeing of locks*
-    ```sequence
-    Thread1-> LockA 
-    LockA->LockB 
-    Thread2-> LockA
+    Locks in this example are consistent. 
     ```
+    Thread1-> LockA->LockB 
+    Thread2-> LockA(waiting)
+    Thread1-> Releases both locks (Locks are available for Thread2)
+    Thread2->LockA -> LockB
+    ```
+    Sometimes these Global ordering becomes tricky with inconsistent locks.
     eg.,
+    Like acc1 in this example is A and acc2 is B for first thread
+    acc2 is A and acc1 is B for second thread. This is called inconsistent ordering. 
+    Adding a condition to make the lock consistent would solve this problem.
     ```java
     private void transfer(Account from, Account to, int amt){
         //Adding these lines will take care of ordering
-        Account acc1 = getLarger(from,to);
+        Account acc1 = getLarger(from,to); //say acc1 has accno. greater than acc2, always A gains lock first for both threads
         Account acc2 = getSmaller(from,to);
-        synchrozied(acc1){ //acc1 and acc2 will be different for different method call. Ordering  of acquiring varies
+        synchrozied(acc1){ //acc1 and acc2 will be different for different method call. Ordering  of acquiring is inconsistent
           synchronized(acc2){
             acc1.deduct(amount);
             acc2.add(amount);
