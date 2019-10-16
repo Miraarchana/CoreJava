@@ -52,12 +52,13 @@
     Note: tryLock() method will make the attempt of other thread wait longer and acquire the lock even if it is a fair lock
     
    - unfair lock(faster)
-      ```sequence
+    ```
       th1 -> lock
       th2,th3,th4 -> wait (queue -FIFO)
       th1-> release lock <-th5 (same time)
       th5->lock
       th2,th3,th4 -> wait
+    ```
     
     ```java
     ReentrantLock lock= new ReentrantLock(false); //will acquire unfair lock
