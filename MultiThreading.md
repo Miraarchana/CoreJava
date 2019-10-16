@@ -49,6 +49,11 @@ Ways to avoid deadlock:
     Thread2 too tries to acquire lock A and then lockB.
     
     *Global ordeing of locks*
+    ```sequence
+    Thread1-> LockA 
+    LockA->LockB 
+    Thread2-> LockA
+    ```
     eg.,
     ```java
     private void transfer(Account from, Account to, int amt){
