@@ -79,20 +79,25 @@
   
   **BlockingQueue:**
     - thread-safe
-        1. producer threads th3-> th1,th2,....<--consumer threads 
-        2. .......<----- consumer thread (consumer thread goes to **block** state as the queue is empty)
-        3. producer thread th5----> th1,th2,th3,th4 (producer thread goes into **block** state as queue is full)
+        - producer threads th3-> th1,th2,....<--consumer threads 
+        - .......<----- consumer thread (consumer thread goes to **block** state as the queue is empty)
+        - producer thread th5----> th1,th2,th3,th4 (producer thread goes into **block** state as queue is full)
         
   **SynchronousQueue:**
      - similar to BlockingQueue, not storing element hence no peek().
-        1. producer threads th3->[] <--consumer threads (put of producer thread is **block** till consumer thread is ready to get -*direct-handoff*)
+        - producer threads th3->[] <--consumer threads (put of producer thread is **block** till consumer thread is ready to get -*direct-handoff*)
         
-   **Exchanger:**  
+  **Exchanger:**  
      - Datastructure that allows two threads to exchange items.
      - works similar to BlockingQueue and SynchronousQueue
      - Usecase: Buffer 
      producer thread has full buffer exchanges with consumer thread which has empty buffer
-     
+  
+  **Semaphore** 
+    -signalling mechanism
+    
+    
+  
 **DeadLocks in MultiThreading**
 _____________________________________________________________________________________________________________________________________
 
